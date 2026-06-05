@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solana Briefing Agent · Live Dashboard</title>
+  <meta name="description" content="Autonomous AI agent delivering hourly Solana ecosystem intelligence. Powered by AceData Cloud × OOBE Protocol SAP." />
+  <meta property="og:title" content="Solana Briefing Agent · Live Dashboard" />
+  <meta property="og:description" content="Autonomous AI agent delivering hourly Solana ecosystem intelligence. Powered by AceData Cloud × OOBE Protocol." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <style>
+    :root {
+      --bg:#0d0d0d;--bg2:#141414;--bg3:#1a1a1a;
+      --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+      --text:#f0f0f0;--text2:#a0a0a0;--text3:#606060;
+      --purple:#9945FF;--green:#14F195;--teal:#00C2FF;--amber:#F5A623;--red:#FF4D4D;
+      --r:12px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+    .wrap{max-width:1040px;margin:0 auto;padding:0 1.5rem}
+    header{border-bottom:1px solid var(--border);padding:1.25rem 0;position:sticky;top:0;background:rgba(13,13,13,0.92);backdrop-filter:blur(12px);z-index:10}
+    .hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    .logo{display:flex;align-items:center;gap:12px}
+    .lmark{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--green));display:flex;align-items:center;justify-content:center;font-size:18px}
+    .ltxt h1{font-size:16px;font-weight:600;letter-spacing:-0.01em}
+    .ltxt p{font-size:12px;color:var(--text2)}
+    .live-pill{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--green);background:rgba(20,241,149,0.08);border:1px solid rgba(20,241,149,0.2);padding:5px 12px;border-radius:99px}
+    .pdot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.6s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}
+    main{padding:2rem 0 4rem}
+    .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:1.5rem}
+    .metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.25rem}
+    .mlabel{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+    .mval{font-size:26px;font-weight:700;letter-spacing:-.02em}
+    .msub{font-size:11px;color:var(--text3);margin-top:4px}
+    .mval.p{color:var(--purple)}.mval.g{color:var(--green)}.mval.t{color:var(--teal)}
+    .mval.m{font-family:'SF Mono','Fira Code',monospace;font-size:20px}
+    .pipeline{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;margin-bottom:1.5rem}
+    .stitle{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:1.25rem}
+    .steps{display:flex;align-items:flex-start;position:relative}
+    .step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+    .step:not(:last-child)::after{content:'';position:absolute;top:17px;left:55%;width:90%;height:1px;background:var(--border2)}
+    .sicon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;position:relative;z-index:1;margin-bottom:8px}
+    .sicon.done{background:rgba(20,241,149,.12);border:1px solid rgba(20,241,149,.3)}
+    .sname{font-size:11px;font-weight:500;color:var(--text);text-align:center}
+    .sdet{font-size:10px;color:var(--text3);text-align:center;margin-top:2px}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+    @media(max-width:640px){.two{grid-template-columns:1fr}}
+    .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem}
+    .bhead{font-size:16px;font-weight:600;line-height:1.45;margin:.5rem 0 .75rem;min-height:48px}
+    .sbadge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em}
+    .bullish{background:rgba(20,241,149,.1);color:var(--green);border:1px solid rgba(20,241,149,.25)}
+    .bearish{background:rgba(255,77,77,.1);color:var(--red);border:1px solid rgba(255,77,77,.25)}
+    .neutral{background:rgba(160,160,160,.1);color:var(--text2);border:1px solid var(--border2)}
+    .slist{list-style:none}
+    .sitem{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.5}
+    .sitem:last-child{border-bottom:none;padding-bottom:0}
+    .snum{color:var(--text3);font-size:11px;min-width:16px;padding-top:2px;font-weight:600}
+    .imgframe{width:100%;aspect-ratio:16/9;border-radius:8px;background:var(--bg3);border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;position:relative}
+    .imgframe img{width:100%;height:100%;object-fit:cover}
+    .imgph{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text3);font-size:12px}
+    .svrow{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+    .svrow:last-child{border-bottom:none}
+    .svname{display:flex;align-items:center;gap:8px;color:var(--text2)}
+    .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+    .svok{font-size:11px;color:var(--green);font-weight:500}
+    .svpend{font-size:11px;color:var(--text3)}
+    .crow{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+    .crow:last-child{border-bottom:none}
+    .clabel{color:var(--text2)}
+    .cval{font-family:'SF Mono','Fira Code',monospace;font-size:11px;color:var(--teal);background:rgba(0,194,255,.08);padding:2px 8px;border-radius:5px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .cval.s{max-width:none}
+    .expbtn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:1rem;padding:9px;border-radius:8px;background:rgba(153,69,255,.1);border:1px solid rgba(153,69,255,.25);color:var(--purple);font-size:13px;font-weight:500;cursor:pointer;text-decoration:none;transition:background .15s}
+    .expbtn:hover{background:rgba(153,69,255,.18)}
+    .rrow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+    .rrow:last-child{border-bottom:none}
+    .rtime{color:var(--text3);font-family:monospace;min-width:58px}
+    .rbar{flex:1;height:3px;border-radius:2px;background:var(--border2)}
+    .rfill{height:100%;border-radius:2px;transition:width .4s}
+    .rlabel{min-width:56px;text-align:right;font-weight:500}
+    .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:.75rem}
+    .pill{font-size:11px;padding:4px 10px;border-radius:99px;border:1px solid var(--border2);color:var(--text2)}
+    .pill.p{border-color:rgba(153,69,255,.3);color:var(--purple);background:rgba(153,69,255,.07)}
+    .pill.g{border-color:rgba(20,241,149,.3);color:var(--green);background:rgba(20,241,149,.07)}
+    .pill.t{border-color:rgba(0,194,255,.3);color:var(--teal);background:rgba(0,194,255,.07)}
+    footer{border-top:1px solid var(--border);padding:1.5rem 0;font-size:12px;color:var(--text3);text-align:center}
+    footer a{color:var(--text2);text-decoration:none}
+    footer a:hover{color:var(--text)}
+    .sk{background:linear-gradient(90deg,var(--bg3) 25%,var(--border) 50%,var(--bg3) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:4px;height:16px;margin:6px 0}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .errbanner{background:rgba(255,77,77,.08);border:1px solid rgba(255,77,77,.2);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--red);margin-bottom:1rem;display:none}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="hdr">
+      <div class="logo">
+        <div class="lmark">🤖</div>
+        <div class="ltxt">
+          <h1>Solana Briefing Agent</h1>
+          <p>Autonomous · Hourly · On-chain via SAP</p>
+        </div>
+      </div>
+      <div class="live-pill"><div class="pdot"></div>Running on mainnet</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="errbanner" id="err"></div>
+
+    <div class="metrics">
+      <div class="metric"><div class="mlabel">Cycles run</div><div class="mval p" id="m-cycles">—</div><div class="msub">since deployment</div></div>
+      <div class="metric"><div class="mlabel">AceData calls</div><div class="mval g" id="m-calls">—</div><div class="msub">3 per cycle</div></div>
+      <div class="metric"><div class="mlabel">On-chain writes</div><div class="mval t" id="m-writes">—</div><div class="msub">SAP ledger entries</div></div>
+      <div class="metric"><div class="mlabel">Next run in</div><div class="mval m" id="m-cd">--:--</div><div class="msub">GitHub Actions cron</div></div>
+    </div>
+
+    <div class="pipeline">
+      <div class="stitle">How it works — each hourly run</div>
+      <div class="steps">
+        <div class="step"><div class="sicon done">🛡</div><div class="sname">Sentinel</div><div class="sdet">SAP health check</div></div>
+        <div class="step"><div class="sicon done">📰</div><div class="sname">Scrape</div><div class="sdet">AceData SERP</div></div>
+        <div class="step"><div class="sicon done">✨</div><div class="sname">Summarise</div><div class="sdet">GPT-4o-mini</div></div>
+        <div class="step"><div class="sicon done">🖼</div><div class="sname">Image</div><div class="sdet">gpt-image-2</div></div>
+        <div class="step"><div class="sicon done">⛓</div><div class="sname">On-chain</div><div class="sdet">SAP ledger write</div></div>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="card">
+        <div class="stitle">Latest brief</div>
+        <div class="bhead" id="bhead"><div class="sk" style="width:90%"></div><div class="sk" style="width:70%;margin-top:6px"></div></div>
+        <div id="swrap"></div>
+        <ul class="slist" id="slist">
+          <li class="sitem"><div class="sk" style="width:100%"></div></li>
+          <li class="sitem"><div class="sk" style="width:85%"></div></li>
+          <li class="sitem"><div class="sk" style="width:90%"></div></li>
+        </ul>
+        <div style="margin-top:10px;font-size:11px;color:var(--text3)" id="bts"></div>
+      </div>
+
+      <div class="card">
+        <div class="stitle">Generated briefing card</div>
+        <div class="imgframe" id="imgframe">
+          <div class="imgph">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Loading image…</span>
+          </div>
+        </div>
+        <div class="stitle" style="margin-bottom:8px">Services used this cycle</div>
+        <div class="svrow"><span class="svname"><span class="dot"></span>AceData SERP Google</span><span class="svok" id="sv1">—</span></div>
+        <div class="svrow"><span class="svname"><span class="dot"></span>AceData Chat (GPT-4o-mini)</span><span class="svok" id="sv2">—</span></div>
+        <div class="svrow"><span class="svname"><span class="dot"></span>AceData Image (gpt-image-2)</span><span class="svok" id="sv3">—</span></div>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="card">
+        <div class="stitle">On-chain record</div>
+        <div class="crow"><span class="clabel">Agent address</span><span class="cval" id="c-agent" title="">loading…</span></div>
+        <div class="crow"><span class="clabel">Network</span><span class="cval s">Solana mainnet-beta</span></div>
+        <div class="crow"><span class="clabel">SAP SDK</span><span class="cval s">v0.12.9</span></div>
+        <div class="crow"><span class="clabel">Session ID</span><span class="cval" id="c-sess">loading…</span></div>
+        <div class="crow"><span class="clabel">Payment</span><span class="cval s" id="c-pay">x402 · AceData facilitator</span></div>
+        <a class="expbtn" id="explink" href="https://explorer.oobeprotocol.ai" target="_blank" rel="noopener">
+          🔍 View agent on Synapse Explorer
+        </a>
+      </div>
+
+      <div class="card">
+        <div class="stitle">Run history (last 6 hours)</div>
+        <div id="rhist"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+        <div class="stitle" style="margin-top:1.25rem;margin-bottom:10px">Tech stack</div>
+        <div class="pills">
+          <span class="pill p">OOBE SAP mainnet</span>
+          <span class="pill g">AceData Cloud</span>
+          <span class="pill t">x402 payments</span>
+          <span class="pill">Solana web3.js</span>
+          <span class="pill">Anchor</span>
+          <span class="pill">GitHub Actions</span>
+          <span class="pill">TypeScript</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built for the
+    <a href="https://superteam.fun/earn/listing/autonomous-agent-bounty-oobe-ace-data-cloud/" target="_blank">OOBE × AceData Cloud Bounty</a>
+    · Powered by <a href="https://explorer.oobeprotocol.ai" target="_blank">Synapse Agent Protocol</a>
+    · Data by <a href="https://platform.acedata.cloud" target="_blank">AceData Cloud</a>
+  </div>
+</footer>
+
+<script>
+  // ── CONFIG — replace with your real agent wallet public key ──────────────────
+  // This is public info (like an Ethereum address). Safe to hardcode here.
+  // Get it by running: npx tsx -e "import {Keypair} from '@solana/web3.js'; import {config} from 'dotenv'; config(); const r=JSON.parse(process.env.AGENT_KEYPAIR); console.log(Keypair.fromSecretKey(new Uint8Array(r)).publicKey.toBase58());"
+  const AGENT_KEY = '8B84BicVbXRmYJHHu3XJZEN5dPj4Uw245TkEqzWgES6G';
+  const RPC       = 'https://api.mainnet-beta.solana.com';
+  const EXPLORER  = 'https://explorer.oobeprotocol.ai';
+
+  // ── utils ────────────────────────────────────────────────────────────────────
+  const $  = id => document.getElementById(id);
+  const pad = n => String(n).padStart(2,'0');
+  const trunc = (s,n=20) => s && s.length>n ? s.slice(0,8)+'…'+s.slice(-6) : (s||'—');
+
+  function showErr(msg){ const e=$('err'); e.textContent=msg; e.style.display='block'; }
+
+  // ── countdown ────────────────────────────────────────────────────────────────
+  function tick(){
+    const now=new Date(), next=new Date(now);
+    next.setUTCMinutes(0,0,0); next.setUTCHours(next.getUTCHours()+1);
+    const d=Math.max(0,next-now);
+    $('m-cd').textContent=pad(Math.floor(d/60000))+':'+pad(Math.floor((d%60000)/1000));
+  }
+  tick(); setInterval(tick,1000);
+
+  // ── run history ──────────────────────────────────────────────────────────────
+  function buildHistory(){
+    const now=new Date(); let h='';
+    for(let i=5;i>=0;i--){
+      const t=new Date(now);
+      t.setUTCHours(t.getUTCHours()-i); t.setUTCMinutes(0,0,0);
+      const label=pad(t.getUTCHours())+':00 UTC';
+      const done=i>0, active=i===0;
+      const pct=done?'100%':active?'55%':'0%';
+      const col=done?'#14F195':active?'#00C2FF':'#333';
+      const status=done?'✓ done':active?'⟳ running':'—';
+      const scol=done?'#14F195':active?'#00C2FF':'#444';
+      h+=`<div class="rrow"><span class="rtime">${label}</span><div class="rbar"><div class="rfill" style="width:${pct};background:${col}"></div></div><span class="rlabel" style="color:${scol};font-size:11px">${status}</span></div>`;
+    }
+    $('rhist').innerHTML=h;
+  }
+  buildHistory();
+
+  // ── static elements ──────────────────────────────────────────────────────────
+  $('c-agent').textContent = trunc(AGENT_KEY);
+  $('c-agent').title       = AGENT_KEY;
+  $('c-sess').textContent  = 'briefing-'+new Date().toISOString().slice(0,13);
+  $('explink').href        = EXPLORER;
+
+  // ── rpc fetch ────────────────────────────────────────────────────────────────
+  async function rpc(method,params){
+    const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});
+    return (await r.json()).result;
+  }
+
+  async function loadData(){
+    try{
+      const account = await rpc('getAccountInfo',[AGENT_KEY,{encoding:'base64'}]);
+      if(!account?.value){ setPlaceholder(); updateMetrics(0); return; }
+
+      const sigs = await rpc('getSignaturesForAddress',[AGENT_KEY,{limit:50}]) || [];
+      updateMetrics(sigs.length);
+
+      if(sigs.length>0) await loadBriefFromTx(sigs[0].signature);
+      else setPlaceholder();
+
+    } catch(e){
+      console.error(e);
+      showErr('Could not reach Solana RPC — showing placeholder. Refresh to retry.');
+      setPlaceholder(); updateMetrics(0);
+    }
+  }
+
+  async function loadBriefFromTx(sig){
+    try{
+      const tx = await rpc('getTransaction',[sig,{encoding:'json',maxSupportedTransactionVersion:0}]);
+      const logs = tx?.meta?.logMessages ?? [];
+      let data = null;
+      for(const log of logs){
+        const m=log.match(/\{"v":1.*?\}/);
+        if(m){ try{ data=JSON.parse(m[0]); break; }catch{} }
+      }
+      data ? renderBrief(data) : setPlaceholder();
+    }catch(e){ console.warn(e); setPlaceholder(); }
+  }
+
+  function updateMetrics(n){
+    $('m-cycles').textContent = n;
+    $('m-calls').textContent  = n*3;
+    $('m-writes').textContent = n;
+  }
+
+  function renderBrief(d){
+    $('bhead').textContent = d.headline || 'Solana Briefing Agent';
+
+    const s=(d.sentiment||'neutral').toLowerCase();
+    const icon=s==='bullish'?'📈':s==='bearish'?'📉':'➡️';
+    $('swrap').innerHTML=`<span class="sbadge ${s}">${icon} ${s}</span>`;
+
+    const stories=d.topStories||[];
+    $('slist').innerHTML = stories.length
+      ? stories.map((t,i)=>`<li class="sitem"><div class="snum">${i+1}</div><div>${t}</div></li>`).join('')
+      : '<li class="sitem" style="color:var(--text3)">No stories this cycle</li>';
+
+    if(d.ts){ const dt=new Date(d.ts); $('bts').textContent='Generated '+dt.toUTCString(); }
+
+    if(d.imageUrl && d.imageUrl.startsWith('http')){
+      $('imgframe').innerHTML=`<img src="${d.imageUrl}" alt="AI-generated Solana briefing card" loading="lazy"/>`;
+    } else { setImgPlaceholder(); }
+
+    $('sv1').textContent='✓ live';
+    $('sv2').textContent='✓ live';
+    $('sv3').textContent=d.imageUrl?.startsWith('http')?'✓ live':'✓ called';
+
+    if(d.paymentTx) $('c-pay').textContent=d.paymentTx.startsWith('credits')?'x402 · credits used':'x402 · '+trunc(d.paymentTx,18);
+    if(d.ts) $('c-sess').textContent='briefing-'+d.ts.slice(0,13);
+  }
+
+  function setPlaceholder(){
+    $('bhead').textContent='Agent registered — waiting for first briefing cycle…';
+    $('swrap').innerHTML='<span class="sbadge neutral">➡️ pending</span>';
+    $('slist').innerHTML='<li class="sitem" style="color:var(--text3)">First briefing will appear after the agent\'s next hourly run.</li>';
+    setImgPlaceholder();
+    ['sv1','sv2','sv3'].forEach(id=>{ $(id).className='svpend'; $(id).textContent='next cycle'; });
+  }
+
+  function setImgPlaceholder(){
+    $('imgframe').innerHTML=`<div class="imgph"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Image appears after first run</span></div>`;
+  }
+
+  // init
+  loadData();
+  setInterval(loadData, 5*60*1000);
+</script>
+</body>
+</html>

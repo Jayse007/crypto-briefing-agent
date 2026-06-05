@@ -1,0 +1,46 @@
+name: Crypto Briefing Agent
+
+on:
+  schedule:
+    # Runs every hour at minute 0
+    # GitHub Actions cron uses UTC time
+    # Format: minute hour day month day-of-week
+    - cron: '0 * * * *'
+  
+  # This lets you trigger it manually from the GitHub UI for testing
+  workflow_dispatch:
+
+jobs:
+  run-agent:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run agent
+        env:
+          # These come from your GitHub repo Secrets
+          # Settings → Secrets and variables → Actions → New repository secret
+          SYNAPSE_RPC_URL: ${{ secrets.SYNAPSE_RPC_URL }}
+          ACEDATA_API_KEY: ${{ secrets.ACEDATA_API_KEY }}
+          AGENT_KEYPAIR: ${{ secrets.AGENT_KEYPAIR }}
+        run: npx ts-node src/index.ts
+
+      - name: Upload run log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-log-${{ github.run_number }}
+          path: |
+            *.log
+          retention-days: 7
